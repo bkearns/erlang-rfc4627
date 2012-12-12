@@ -151,6 +151,8 @@ encode_noauto({obj, Fields}, Acc) ->
     "}" ++ encode_object(Fields, "{" ++ Acc);
 encode_noauto(Dict, Acc) when element(1, Dict) =:= dict ->
     "}" ++ encode_object(dict:to_list(Dict), "{" ++ Acc);
+encode_noauto(Tup, Acc) when is_tuple(Tup) ->
+    "}" ++ encode_tuple(Tup, "{" ++ Acc);
 encode_noauto(Arr, Acc) when is_list(Arr) ->
     "]" ++ encode_array(Arr, "[" ++ Acc).
 
@@ -175,6 +177,17 @@ encode_array([X], Acc) ->
     encode_noauto(X, Acc);
 encode_array([X | Rest], Acc) ->
     encode_array(Rest, "," ++ encode_noauto(X, Acc)).
+
+encode_tuple([], Acc) ->
+    Acc;
+encode_tuple(Tuple, Acc) when is_tuple(Tuple)->
+    encode_tuple(tuple_to_list(Tuple), Acc);
+encode_tuple([Head], Acc) ->
+    encode_noauto(Head, Acc);
+encode_tuple([Head| Tail], Acc) ->
+    encode_tuple(Tail, "," ++ encode_noauto(Head, Acc)).
+
+
 
 quote_and_encode_string(Str, Acc) ->
     "\"" ++ encode_string(Str, "\"" ++ Acc).
